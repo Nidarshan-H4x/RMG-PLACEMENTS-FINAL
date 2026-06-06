@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="icon" href="data:,">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RMG Placements & Training - College Partnerships</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'sans-serif'] },
+                    colors: { rmgBlue: '#003380', rmgOrange: '#FF6600', lightBlue: '#F0F5FF' }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-gray-50 text-gray-800 font-sans">
+
+    <div id="nav-placeholder"></div>
+
+    <main>
+        <!-- Colleges Hero Section -->
+        <section class="bg-lightBlue py-16 px-4 text-center">
+            <h1 class="text-4xl md:text-5xl font-extrabold text-gray-900 mb-4">PARTNER WITH RMG</h1>
+            <p class="text-gray-600 text-lg max-w-2xl mx-auto">Empowering Educational Institutions to deliver world-class placement results and industry-ready graduates.</p>
+        </section>
+
+        <!-- Value Proposition Section -->
+        <section class="py-16 max-w-7xl mx-auto px-4">
+            <div class="text-center mb-12">
+                <h2 class="text-2xl font-extrabold text-rmgBlue inline-block border-l-4 border-rmgBlue pl-4 text-left">WHY PARTNER WITH US?</h2>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div class="bg-white p-8 rounded-2xl border border-gray-100 shadow-sm text-center">
+                    <div class="bg-blue-50 w-12 h-12 rounded-lg flex items-center justify-center text-rmgBlue mx-auto mb-6"><i data-lucide="trending-up"></i></div>
+                    <h3 class="font-bold text-xl mb-3">Boost Placement %</h3>
+                    <p class="text-gray-600 text-sm">Increase your institution's placement record with our network of 100+ partner companies.</p>
+                </div>
+                <div class="bg-white p-8 rounded-2xl border border-gray-100 shadow-sm text-center">
+                    <div class="bg-blue-50 w-12 h-12 rounded-lg flex items-center justify-center text-rmgBlue mx-auto mb-6"><i data-lucide="graduation-cap"></i></div>
+                    <h3 class="font-bold text-xl mb-3">Curriculum Alignment</h3>
+                    <p class="text-gray-600 text-sm">We provide industry insights to help you update training modules.</p>
+                </div>
+                <div class="bg-white p-8 rounded-2xl border border-gray-100 shadow-sm text-center">
+                    <div class="bg-blue-50 w-12 h-12 rounded-lg flex items-center justify-center text-rmgBlue mx-auto mb-6"><i data-lucide="users"></i></div>
+                    <h3 class="font-bold text-xl mb-3">Campus to Corporate</h3>
+                    <p class="text-gray-600 text-sm">Our workshops ensure students are confident during interviews and at work.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Partnership Application Form -->
+        <section class="py-16 max-w-5xl mx-auto px-4 mb-12">
+            <div class="bg-white p-8 md:p-12 rounded-3xl shadow-xl border border-gray-100">
+                <div class="text-center mb-10">
+                    <h2 class="text-2xl font-extrabold text-rmgBlue mb-4">BECOME A PARTNER COLLEGE</h2>
+                    <p class="text-gray-600">Fill in the details below. Our partnership manager will contact you within 48 hours.</p>
+                </div>
+                <form id="college-form" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <input type="text" placeholder="College Name" class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-rmgBlue focus:outline-none">
+                    <input type="text" placeholder="Contact Person Name" class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-rmgBlue focus:outline-none">
+                    <input type="email" placeholder="College Email Address" class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-rmgBlue focus:outline-none">
+                    <input type="text" placeholder="Phone Number" class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-rmgBlue focus:outline-none">
+                    <textarea rows="4" placeholder="Tell us about your students and goals..." class="md:col-span-2 w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-rmgBlue focus:outline-none"></textarea>
+                    <div class="md:col-span-2 text-center mt-4">
+                        <button type="submit" class="bg-rmgBlue text-white font-bold py-4 px-12 rounded-lg hover:bg-blue-900 transition-all shadow-lg flex items-center justify-center gap-2 mx-auto">
+                            <i data-lucide="send" class="w-5 h-5"></i> SUBMIT PARTNERSHIP REQUEST
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </section>
+    </main>
+
+    <div id="footer-placeholder"></div>
+    <script src="../assets/js/main.js"></script>
+    <script type="module">
+    import { db } from '../assets/js/firebase-config.js';
+    import { collection, addDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+    document.getElementById('college-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        const collegeName = e.target[0].value;
+        const contactPerson = e.target[1].value;
+        const email = e.target[2].value;
+        const phone = e.target[3].value;
+        const goals = e.target[4].value;
+
+        try {
+            await addDoc(collection(db, "college_requests"), {
+                collegeName, contactPerson, email, phone, goals,
+                timestamp: new Date()
+            });
+            alert("Partnership request submitted!");
+            e.target.reset();
+        } catch (error) {
+            alert("Error submitting request.");
+        }
+    });
+</script>
+</body>
+</html>

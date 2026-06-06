@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel | RMG Placements</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'sans-serif'] },
+                    colors: { rmgBlue: '#003380', rmgOrange: '#FF6600', adminDark: '#111827' }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-gray-100 text-gray-800 font-sans flex h-screen overflow-hidden">
+
+    <!-- SIDEBAR -->
+    <aside class="w-64 bg-adminDark text-white flex flex-col hidden md:flex">
+        <div class="p-6 text-2xl font-black border-b border-gray-700">
+            RMG Admin
+        </div>
+        <nav class="flex-1 p-4 space-y-2">
+            <a href="admin.html" class="block px-4 py-3 bg-gray-800 rounded-lg font-semibold">Dashboard</a>
+            <a href="#" class="block px-4 py-3 hover:bg-gray-800 rounded-lg transition">Manage Jobs</a>
+            <a href="#" class="block px-4 py-3 hover:bg-gray-800 rounded-lg transition">Enquiries</a>
+        </nav>
+        <div class="p-4 border-t border-gray-700">
+            <button id="logout-btn" class="w-full text-left px-4 py-2 text-red-400 hover:text-red-300 font-semibold transition">Log Out</button>
+        </div>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main class="flex-1 flex flex-col h-screen overflow-y-auto">
+        <header class="bg-white shadow-sm p-6 flex justify-between items-center">
+            <h1 class="text-2xl font-bold text-gray-800" id="welcome-message">Loading Admin...</h1>
+        </header>
+
+        <div class="p-8">
+            <!-- Stats Row -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200 border-l-4 border-l-adminDark">
+                    <h3 class="text-gray-500 text-sm font-semibold mb-1">Total Users</h3>
+                    <p class="text-3xl font-bold text-gray-800" id="total-users">0</p>
+                </div>
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200 border-l-4 border-l-rmgBlue">
+                    <h3 class="text-gray-500 text-sm font-semibold mb-1">Total Candidates</h3>
+                    <p class="text-3xl font-bold text-gray-800" id="total-candidates">0</p>
+                </div>
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200 border-l-4 border-l-rmgOrange">
+                    <h3 class="text-gray-500 text-sm font-semibold mb-1">Total Employers</h3>
+                    <p class="text-3xl font-bold text-gray-800" id="total-employers">0</p>
+                </div>
+            </div>
+
+            <!-- Users Table -->
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+                <div class="p-6 border-b border-gray-200">
+                    <h2 class="text-xl font-bold">Registered Users</h2>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-gray-50 text-gray-600 text-sm border-b border-gray-200">
+                                <th class="p-4 font-semibold">Name</th>
+                                <th class="p-4 font-semibold">Email</th>
+                                <th class="p-4 font-semibold">Phone</th>
+                                <th class="p-4 font-semibold">Role</th>
+                            </tr>
+                        </thead>
+                        <button onclick=""</button>
+                        <tbody id="users-table-body" class="divide-y divide-gray-200">
+                            <tr>
+                                <td colspan="4" class="p-4 text-center text-gray-500">Loading users...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- FIREBASE & ADMIN LOGIC -->
+    <script type="module">
+        import { auth, db } from '../assets/js/firebase-config.js';
+        import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import { doc, getDoc, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+        // 1. STRICT AUTH GUARD
+        onAuthStateChanged(auth, async (user) => {
+            if (!user) {
+                window.location.href = "../Pages/candidate-login.html";
+                return;
+            }
+
+            try {
+                const userDocRef = doc(db, "users", user.uid);
+                const userDocSnap = await getDoc(userDocRef);
+
+                if (userDocSnap.exists()) {
+                    const userData = userDocSnap.data();
+                    
+                    // IF NOT ADMIN, KICK THEM OUT!
+                    if(userData.role !== 'admin') {
+                        alert("⚠️ Unauthorized Access! You are not an admin.");
+                        window.location.href = "../Pages/index.html";
+                        return;
+                    }
+
+                    document.getElementById('welcome-message').textContent = `Welcome, Super Admin 🛡️`;
+                    loadAllUsers(); // Load the data if they pass the check
+                }
+            } catch (error) {
+                console.error("Auth error:", error);
+            }
+        });
+
+        // 2. FETCH ALL USERS FOR THE TABLE
+        async function loadAllUsers() {
+            try {
+                const querySnapshot = await getDocs(collection(db, "users"));
+                const tableBody = document.getElementById('users-table-body');
+                
+                let html = '';
+                let totalCount = 0;
+                let candCount = 0;
+                let empCount = 0;
+
+                querySnapshot.forEach((doc) => {
+                    const u = doc.data();
+                    totalCount++;
+                    if(u.role === 'candidate') candCount++;
+                    if(u.role === 'employer') empCount++;
+
+                    // Color code the roles
+                    let roleBadge = u.role === 'admin' ? '<span class="bg-red-100 text-red-800 px-2 py-1 rounded text-xs font-bold">ADMIN</span>' :
+                                    u.role === 'employer' ? '<span class="bg-orange-100 text-orange-800 px-2 py-1 rounded text-xs font-bold">EMPLOYER</span>' :
+                                    '<span class="bg-blue-100 text-blue-800 px-2 py-1 rounded text-xs font-bold">CANDIDATE</span>';
+
+                    html += `
+                        <tr class="hover:bg-gray-50 transition">
+                            <td class="p-4 text-sm font-medium">${u.fullName || 'N/A'}</td>
+                            <td class="p-4 text-sm text-gray-600">${u.email}</td>
+                            <td class="p-4 text-sm text-gray-600">${u.phone || 'N/A'}</td>
+                            <td class="p-4 text-sm">${roleBadge}</td>
+                        </tr>
+                    `;
+                });
+
+                tableBody.innerHTML = html;
+                
+                // Update the stats cards
+                document.getElementById('total-users').textContent = totalCount;
+                document.getElementById('total-candidates').textContent = candCount;
+                document.getElementById('total-employers').textContent = empCount;
+
+            } catch (error) {
+                console.error("Error loading users:", error);
+                document.getElementById('users-table-body').innerHTML = `<tr><td colspan="4" class="p-4 text-center text-red-500">Failed to load users.</td></tr>`;
+            }
+        }
+
+        // 3. LOGOUT LOGIC
+        document.getElementById('logout-btn').addEventListener('click', async () => {
+            await signOut(auth);
+            window.location.href = "../Pages/index.html";
+        });
+    </script>
+</body>
+</html>

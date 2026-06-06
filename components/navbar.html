@@ -1,0 +1,54 @@
+<!-- Desktop Navbar -->
+<nav class="bg-white py-4 px-8 shadow-sm flex items-center justify-between sticky top-0 z-50">
+    <a href="/pages/index.html" class="flex items-center gap-2 text-rmgBlue font-bold text-2xl tracking-tighter">
+        <span>RMG</span>
+        <div class="text-[15px] leading-tight font-medium">
+            <div>PLACEMENTS &</div>
+            <div>TRAINING INSTITUTE</div>
+        </div>
+    </a>
+
+    <div class="hidden lg:flex space-x-6 text-sm font-semibold text-gray-600">
+        <a href="/pages/index.html" class="hover:text-rmgBlue transition">HOME</a>
+        <a href="/pages/jobs.html" class="hover:text-rmgBlue transition">JOBS</a>
+        <a href="/pages/training.html" class="hover:text-rmgBlue transition">TRAINING</a>
+        <a href="/pages/colleges.html" class="hover:text-rmgBlue transition">COLLEGES</a>
+        <a href="/pages/companies.html" class="hover:text-rmgBlue transition">COMPANIES</a>
+        <a href="/pages/about.html" class="hover:text-rmgBlue transition">ABOUT US</a>
+        <a href="/pages/contact.html" class="hover:text-rmgBlue transition">CONTACT US</a>
+    </div>
+
+    <div class="hidden md:flex space-x-3 text-sm font-bold">
+        <a href="/pages/candidate-login.html" class="border-2 border-rmgBlue text-rmgBlue px-4 py-2 rounded hover:bg-rmgBlue hover:text-white transition">CANDIDATE LOGIN</a>
+        <a href="/pages/employer-login.html" class="border-2 border-rmgBlue text-rmgBlue px-4 py-2 rounded hover:bg-rmgBlue hover:text-white transition">EMPLOYER LOGIN</a>
+        <a href="/pages/register.html" class="bg-rmgOrange text-white px-4 py-2 rounded hover:bg-orange-600 transition">REGISTER NOW</a>
+    </div>
+
+    <button id="menu-btn" class="lg:hidden text-rmgBlue">
+        <i data-lucide="menu"></i>
+    </button>
+</nav>
+
+<!-- Mobile Sidebar -->
+<div id="mobile-menu" class="fixed inset-0 bg-white z-[60] transform translate-x-full transition-transform duration-300 lg:hidden">
+    <div class="p-6 flex flex-col h-full">
+        <div class="flex justify-between items-center mb-8">
+            <span class="text-rmgBlue font-bold text-xl">RMG MENU</span>
+            <button id="close-btn" class="text-gray-500"><i data-lucide="x"></i></button>
+        </div>
+        <div class="flex flex-col space-y-6 text-lg font-semibold text-gray-600">
+            <a href="/pages/index.html">HOME</a>
+            <a href="/pages/jobs.html">JOBS</a>
+            <a href="/pages/training.html">TRAINING</a>
+            <a href="/pages/colleges.html">COLLEGES</a>
+            <a href="/pages/companies.html">COMPANIES</a>
+            <a href="/pages/about.html">ABOUT US</a>
+            <a href="/pages/contact.html">CONTACT US</a>
+        </div>
+        <div class="mt-auto space-y-3">
+    <a href="/pages/register.html" class="block w-full bg-rmgBlue text-white py-3 rounded-lg font-bold text-center">REGISTER NOW</a>
+    <a href="/pages/candidate-login.html" class="block w-full border-2 border-rmgBlue text-rmgBlue py-3 rounded-lg font-bold text-center">CANDIDATE LOGIN</a>
+    <a href="/pages/employer-login.html" class="block w-full border-2 border-rmgOrange text-rmgOrange py-3 rounded-lg font-bold text-center">EMPLOYER LOGIN</a>
+</div>
+    </div>
+</div>

@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Employer Dashboard | RMG Placements</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'sans-serif'] },
+                    colors: { rmgBlue: '#003380', rmgOrange: '#FF6600', lightBlue: '#F0F5FF' }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-gray-50 text-gray-800 font-sans flex h-screen overflow-hidden">
+
+    <!-- SIDEBAR -->
+    <aside class="w-64 bg-rmgOrange text-white flex flex-col hidden md:flex">
+        <div class="p-6 text-2xl font-black border-b border-orange-700">
+            RMG Employer
+        </div>
+        <nav class="flex-1 p-4 space-y-2">
+            <a href="employer-dashboard.html" class="block px-4 py-3 bg-orange-700 rounded-lg font-semibold">Dashboard</a>
+            <a href="employer-post-job.html" class="block px-4 py-3 hover:bg-orange-700 rounded-lg transition">Post a Job</a>
+            <a href="employer-manage-jobs.html" class="block px-4 py-3 hover:bg-orange-700 rounded-lg transition">Manage Jobs</a>
+        </nav>
+        <div class="p-4 border-t border-orange-700">
+            <button id="logout-btn" class="w-full text-left px-4 py-2 text-orange-200 hover:text-white font-semibold transition">Log Out</button>
+        </div>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main class="flex-1 flex flex-col h-screen overflow-y-auto">
+        <header class="bg-white shadow-sm p-6 flex justify-between items-center">
+            <h1 class="text-2xl font-bold text-gray-800" id="welcome-message">Loading...</h1>
+        </header>
+
+        <div class="p-8">
+            <!-- Dashboard Cards -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 border-l-4 border-l-rmgOrange">
+                    <h3 class="text-gray-500 text-sm font-semibold mb-1">Active Job Postings</h3>
+                    <p class="text-3xl font-bold text-gray-800">0</p>
+                </div>
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 border-l-4 border-l-rmgBlue">
+                    <h3 class="text-gray-500 text-sm font-semibold mb-1">Total Applicants</h3>
+                    <p class="text-3xl font-bold text-gray-800">0</p>
+                </div>
+            </div>
+
+            <!-- Main Dashboard Area -->
+            <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-8 text-center flex flex-col items-center justify-center min-h-[300px]">
+                <h2 class="text-xl font-bold mb-2">Ready to hire?</h2>
+                <p class="text-gray-500 mb-6">Create your first job listing to start receiving applications from top candidates.</p>
+                <a href="employer-post-job.html" class="bg-rmgOrange text-white font-bold py-3 px-6 rounded-lg hover:bg-orange-700 transition shadow-md">
+                    + Post a New Job
+                </a>
+            </div>
+        </div>
+    </main>
+
+    <!-- FIREBASE & DASHBOARD LOGIC -->
+    <script type="module">
+        import { auth, db } from '../assets/js/firebase-config.js';
+        import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import { doc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+        // 1. AUTH GUARD
+        onAuthStateChanged(auth, async (user) => {
+            if (!user) {
+                window.location.href = "employer-login.html";
+                return;
+            }
+
+            try {
+                // 2. FETCH USER DATA & VERIFY ROLE
+                const userDocRef = doc(db, "users", user.uid);
+                const userDocSnap = await getDoc(userDocRef);
+
+                if (userDocSnap.exists()) {
+                    const userData = userDocSnap.data();
+                    
+                    // SECURITY CHECK: Kick candidates out of the employer dashboard
+                    if(userData.role !== 'employer') {
+                        alert("Access denied. Redirecting to Candidate Dashboard.");
+                        window.location.href = "candidate-dashboard.html";
+                        return;
+                    }
+
+                    // Update UI
+                    document.getElementById('welcome-message').textContent = `Welcome, ${userData.fullName}! 🏢`;
+                }
+            } catch (error) {
+                console.error("Error fetching profile:", error);
+                document.getElementById('welcome-message').textContent = `Welcome! 🏢`;
+            }
+        });
+
+        // 3. LOGOUT LOGIC
+        document.getElementById('logout-btn').addEventListener('click', async () => {
+            await signOut(auth);
+            window.location.href = "employer-login.html";
+        });
+    </script>
+</body>
+</html>
